@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pizzería Napoli | Menú Digital</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <span class="tag">Menú Digital Premium</span>
+    <h1>Pizzería Napoli</h1>
+  </div>
+
+  <button class="cart-btn" onclick="abrirCarrito()">
+    🛒 <span id="contadorCarrito">0</span>
+  </button>
+</header>
+
+<section class="hero">
+  <div class="hero-content">
+    <span>🔥 Pizzas artesanales</span>
+    <h2>Arma tu pizza perfecta</h2>
+    <p>Elige tamaño, masa, ingredientes extra y envía tu pedido directo por WhatsApp.</p>
+    <a href="#menu">Ver menú</a>
+  </div>
+</section>
+
+<section class="categorias">
+  <button onclick="filtrarCategoria('todos')" class="activo">Todo</button>
+  <button onclick="filtrarCategoria('pizza')">Pizzas</button>
+  <button onclick="filtrarCategoria('pasta')">Pastas</button>
+  <button onclick="filtrarCategoria('entrada')">Entradas</button>
+  <button onclick="filtrarCategoria('bebida')">Bebidas</button>
+</section>
+
+<main class="menu" id="menu">
+  <div class="section-title">
+    <span>Ordena fácil</span>
+    <h2>Nuestro menú</h2>
+  </div>
+
+  <div class="productos-grid" id="productosGrid"></div>
+</main>
+
+<div class="modal oculto" id="modalProducto">
+  <div class="modal-card">
+    <button class="cerrar" onclick="cerrarModal()">×</button>
+
+    <img id="modalImagen" src="" alt="Producto">
+
+    <h2 id="modalNombre"></h2>
+    <p id="modalDescripcion"></p>
+
+    <div id="opcionesPizza" class="opciones oculto">
+      <h3>Elige tamaño</h3>
+      <div class="option-list" id="listaTamanos"></div>
+
+      <h3>Tipo de masa</h3>
+      <div class="option-list">
+        <label><input type="radio" name="masa" value="Tradicional" checked> Tradicional</label>
+        <label><input type="radio" name="masa" value="Delgada"> Delgada</label>
+        <label><input type="radio" name="masa" value="Orilla de queso +$35"> Orilla de queso +$35</label>
+      </div>
+
+      <h3>Ingredientes extra <span>+$10 c/u</span></h3>
+      <div class="extras-grid" id="listaExtras"></div>
+    </div>
+
+    <div class="notas">
+      <label>Notas especiales</label>
+      <textarea id="notasProducto" placeholder="Ej. Sin cebolla, bien dorada, poca salsa..."></textarea>
+    </div>
+
+    <div class="cantidad">
+      <button onclick="cambiarCantidad(-1)">−</button>
+      <span id="cantidadProducto">1</span>
+      <button onclick="cambiarCantidad(1)">+</button>
+    </div>
+
+    <div class="modal-footer">
+      <strong>Total: $<span id="totalProducto">0</span></strong>
+      <button onclick="agregarAlCarrito()">Agregar al carrito</button>
+    </div>
+  </div>
+</div>
+
+<div class="carrito-panel oculto" id="carritoPanel">
+  <div class="carrito-card">
+    <button class="cerrar" onclick="cerrarCarrito()">×</button>
+
+    <h2>Tu pedido</h2>
+
+    <div id="listaCarrito"></div>
+
+    <div class="cliente-form">
+      <input type="text" id="nombreCliente" placeholder="Tu nombre">
+      <input type="text" id="direccionCliente" placeholder="Dirección o referencia">
+    </div>
+
+    <div class="carrito-total">
+      <span>Total</span>
+      <strong>$<span id="totalCarrito">0</span></strong>
+    </div>
+
+    <button class="whatsapp-btn" onclick="enviarWhatsApp()">
+      Enviar pedido por WhatsApp
+    </button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
