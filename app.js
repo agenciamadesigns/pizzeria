@@ -177,7 +177,11 @@ async function enviarPedidoPanel() {
     return;
   }
 
-  const nombre = document.getElementById("nombreCliente").value.trim();
+const nombreInput = document.getElementById("nombreCliente");
+const direccionInput = document.getElementById("direccionCliente");
+
+const nombre = nombreInput ? nombreInput.value.trim() : "";
+const direccion = direccionInput ? direccionInput.value.trim() : "";
 
   const total = carrito.reduce((sum, item) => sum + item.subtotal, 0);
 
