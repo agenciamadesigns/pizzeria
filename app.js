@@ -222,7 +222,7 @@ async function enviarPedidoPanel() {
     return;
   }
 
-  alert(`Pedido enviado correctamente desde ${mesaActual.nombre}`);
+  mostrarPopupExito(`Tu pedido fue enviado correctamente desde ${mesaActual.nombre}.`);
 
   carrito = [];
   actualizarCarrito();
@@ -429,4 +429,16 @@ async function cargarCategoriasMenu() {
       </button>
     `;
   });
+}
+
+function mostrarPopupExito(mensaje) {
+  const popup = document.getElementById("popupExito");
+  const popupMensaje = document.getElementById("popupMensaje");
+
+  popupMensaje.textContent = mensaje;
+  popup.classList.remove("oculto");
+}
+
+function cerrarPopupExito() {
+  document.getElementById("popupExito").classList.add("oculto");
 }
