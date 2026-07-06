@@ -414,7 +414,7 @@ async function cargarMesas() {
   listaMesas.innerHTML = "";
 
   data.forEach(mesa => {
-    const urlMenu = `${window.location.origin}/index.html?mesa=${mesa.codigo_mesa}`;
+    const urlMenu = `${window.location.origin}${window.location.pathname.replace("admin.html", "index.html")}?mesa=${mesa.codigo_mesa}`;
     const qrId = `qr-${mesa.id}`;
 
     listaMesas.innerHTML += `
