@@ -20,6 +20,7 @@
     </div>
 
     <button class="nav-btn activo" data-section="pedidos">Pedidos</button>
+    <button class="nav-btn" data-section="historial">Historial</button>
     <button class="nav-btn" data-section="productos">Productos</button>
     <button class="nav-btn" data-section="categorias">Categorías</button>
     <button class="nav-btn" data-section="mesas">Mesas y QR</button>
@@ -31,6 +32,17 @@
       <h2>Pedidos recibidos</h2>
       <div id="listaPedidos" class="admin-list"></div>
     </section>
+
+    <section class="admin-section panel-section" id="section-historial">
+  <h2>Historial de pedidos</h2>
+
+  <form class="admin-form" onsubmit="event.preventDefault(); cargarHistorialPedidos();">
+    <input type="date" id="fechaHistorial">
+    <button type="submit">Buscar por fecha</button>
+  </form>
+
+  <div id="listaHistorialPedidos" class="admin-list"></div>
+</section>
 
     <section class="admin-section panel-section" id="section-productos">
       <h2>Productos</h2>

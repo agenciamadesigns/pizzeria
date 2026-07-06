@@ -27,6 +27,8 @@ const listaMesas = document.getElementById("listaMesas");
 
 // PEDIDOS
 const listaPedidos = document.getElementById("listaPedidos");
+const fechaHistorial = document.getElementById("fechaHistorial");
+const listaHistorialPedidos = document.getElementById("listaHistorialPedidos");
 
 document.addEventListener("DOMContentLoaded", () => {
   cargarCategorias();
@@ -34,6 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarMesas();
   cargarPedidos();
   escucharPedidosRealtime();
+
+  const hoy = new Date().toISOString().split("T")[0];
+  fechaHistorial.value = hoy;
+  cargarHistorialPedidos();
 });
 
 // ==========================
@@ -477,6 +483,7 @@ async function cargarPedidos() {
       pedido_items(*)
     `)
     .eq("restaurante_id", RESTAURANTE_ID)
+    .neq("estado", "entregado")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -777,4 +784,77 @@ function mostrarAlertaPedido(texto) {
   setTimeout(() => {
     alerta.remove();
   }, 3500);
+}
+
+async function cargarHistorialPedidos() {
+  const fecha = fechaHistorial.value;
+
+  if (!fecha) {
+    alert("Selecciona una fecha");
+    return;
+  }
+
+  const inicio = `${fecha}T00:00:00`;
+  const fin = `${fecha}T23:59:59`;
+
+  const { data, error } = await supabaseClient
+    .from("pedidos")
+    .select(`
+      *,
+      pedido_items(*)
+    `)
+    .eq("restaurante_id", RESTAURANTE_ID)
+    .eq("estado", "entregado")
+    .gte("created_at", inicio)
+    .lte("created_at", fin)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    alert("Error al cargar historial");
+    return;
+  }
+
+  listaHistorialPedidos.innerHTML = "";
+
+  if (data.length === 0) {
+    listaHistorialPedidos.innerHTML = `
+      <div class="admin-card">
+        <h3>Sin pedidos</h3>
+        <p>No hay pedidos entregados en esta fecha.</p>
+      </div>
+    `;
+    return;
+  }
+
+  data.forEach(pedido => {
+    let itemsHTML = "";
+
+    if (pedido.pedido_items) {
+      pedido.pedido_items.forEach(item => {
+        itemsHTML += `
+          <li>
+            ${item.cantidad}x ${item.producto_nombre}
+            ${item.tamano ? "- " + item.tamano : ""}
+            - $${item.subtotal}
+          </li>
+        `;
+      });
+    }
+
+    const fechaPedido = new Date(pedido.created_at).toLocaleString("es-MX");
+
+    listaHistorialPedidos.innerHTML += `
+      <div class="admin-card pedido-card estado-entregado">
+        <h3>${pedido.mesa_nombre || "Sin mesa"}</h3>
+        <p><strong>Fecha:</strong> ${fechaPedido}</p>
+        <p><strong>Estado:</strong> ${pedido.estado}</p>
+        <p><strong>Total:</strong> $${pedido.total}</p>
+        <p><strong>Cliente:</strong> ${pedido.cliente_nombre || "Sin nombre"}</p>
+        <p><strong>Notas:</strong> ${pedido.notas || "Sin notas"}</p>
+
+        <ul>${itemsHTML}</ul>
+      </div>
+    `;
+  });
 }
