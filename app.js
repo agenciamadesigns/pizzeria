@@ -222,11 +222,13 @@ async function enviarPedidoPanel() {
     return;
   }
 
-  mostrarPopupExito(`Tu pedido fue enviado correctamente desde ${mesaActual.nombre}.`);
+carrito = [];
+actualizarCarrito();
+cerrarCarrito();
 
-  carrito = [];
-  actualizarCarrito();
-  cerrarCarrito();
+setTimeout(() => {
+  mostrarPopupExito(`Tu pedido fue enviado correctamente desde ${mesaActual.nombre}.`);
+}, 200);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
