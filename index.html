@@ -31,13 +31,7 @@
   </div>
 </section>
 
-<section class="categorias">
-  <button onclick="filtrarCategoria('todos')" class="activo">Todo</button>
-  <button onclick="filtrarCategoria('pizza')">Pizzas</button>
-  <button onclick="filtrarCategoria('pasta')">Pastas</button>
-  <button onclick="filtrarCategoria('entrada')">Entradas</button>
-  <button onclick="filtrarCategoria('bebida')">Bebidas</button>
-</section>
+<section class="categorias" id="categoriasMenu"></section>
 
 <main class="menu" id="menu">
   <div class="section-title">
@@ -57,20 +51,7 @@
     <h2 id="modalNombre"></h2>
     <p id="modalDescripcion"></p>
 
-    <div id="opcionesPizza" class="opciones oculto">
-      <h3>Elige tamaño</h3>
-      <div class="option-list" id="listaTamanos"></div>
-
-      <h3>Tipo de masa</h3>
-      <div class="option-list">
-        <label><input type="radio" name="masa" value="Tradicional" checked> Tradicional</label>
-        <label><input type="radio" name="masa" value="Delgada"> Delgada</label>
-        <label><input type="radio" name="masa" value="Orilla de queso +$35"> Orilla de queso +$35</label>
-      </div>
-
-      <h3>Ingredientes extra <span>+$10 c/u</span></h3>
-      <div class="extras-grid" id="listaExtras"></div>
-    </div>
+    <div id="opcionesPizza" class="opciones oculto"></div>
 
     <div class="notas">
       <label>Notas especiales</label>
@@ -108,12 +89,14 @@
       <strong>$<span id="totalCarrito">0</span></strong>
     </div>
 
-    <button class="whatsapp-btn" onclick="enviarWhatsApp()">
-      Enviar pedido por WhatsApp
+    <button class="whatsapp-btn" onclick="enviarPedidoPanel()">
+      Enviar pedido a cocina
     </button>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

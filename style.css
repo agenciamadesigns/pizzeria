@@ -475,3 +475,150 @@ input[type="checkbox"] {
     width: 100%;
   }
 }
+
+/* PRODUCTOS PREMIUM OSCUROS */
+
+.productos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.producto-card {
+  position: relative;
+  background: linear-gradient(180deg, #1b1b1b, #101010);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0,0,0,.45);
+  transition: .3s ease;
+}
+
+.producto-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255,184,77,.55);
+  box-shadow: 0 34px 90px rgba(0,0,0,.65);
+}
+
+.producto-card img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  display: block;
+}
+
+.producto-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 230px;
+  width: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0),
+    rgba(0,0,0,.35)
+  );
+  pointer-events: none;
+}
+
+.producto-info {
+  position: relative;
+  padding: 20px;
+  background: linear-gradient(180deg, #181818, #111);
+}
+
+.producto-info small {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-bottom: 12px;
+  padding: 7px 12px;
+  background: rgba(255,184,77,.12);
+  color: #ffb84d;
+  border: 1px solid rgba(255,184,77,.28);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+.producto-info h3 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.producto-info p {
+  margin: 0;
+  color: #aaa;
+  line-height: 1.55;
+  font-size: 14px;
+  min-height: 62px;
+}
+
+.producto-bottom {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.producto-bottom strong {
+  font-size: 25px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.producto-bottom strong::before {
+  content: "Desde ";
+  display: block;
+  color: #ffb84d;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 2px;
+}
+
+.producto-bottom button {
+  border: none;
+  background: linear-gradient(135deg, #ff3d00, #ff9f1c);
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(255, 100, 0, .35);
+  transition: .25s ease;
+}
+
+.producto-bottom button:hover {
+  transform: scale(1.04);
+  box-shadow: 0 18px 40px rgba(255, 100, 0, .5);
+}
+
+@media (max-width: 600px) {
+  .producto-card img,
+  .producto-card::after {
+    height: 210px;
+  }
+
+  .producto-info h3 {
+    font-size: 20px;
+  }
+
+  .producto-bottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .producto-bottom button {
+    width: 100%;
+  }
+}

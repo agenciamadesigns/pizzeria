@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Restaurante</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="admin-shell">
+
+  <aside class="admin-sidebar">
+    <div class="admin-brand">
+      <span>🍕</span>
+      <div>
+        <h2>Napoli Admin</h2>
+        <p>Panel Restaurante</p>
+      </div>
+    </div>
+
+    <button class="nav-btn activo" data-section="pedidos">Pedidos</button>
+    <button class="nav-btn" data-section="productos">Productos</button>
+    <button class="nav-btn" data-section="categorias">Categorías</button>
+    <button class="nav-btn" data-section="mesas">Mesas y QR</button>
+  </aside>
+
+  <main class="admin-content">
+
+    <section class="admin-section panel-section activa" id="section-pedidos">
+      <h2>Pedidos recibidos</h2>
+      <div id="listaPedidos" class="admin-list"></div>
+    </section>
+
+    <section class="admin-section panel-section" id="section-productos">
+      <h2>Productos</h2>
+
+      <form id="formProducto" class="admin-form">
+
+        <input type="text" id="nombreProducto" placeholder="Nombre del producto">
+
+        <textarea id="descripcionProducto" placeholder="Descripción"></textarea>
+
+        <input type="number" id="precioProducto" placeholder="Precio base">
+
+        <select id="categoriaProducto">
+          <option value="">Selecciona categoría</option>
+        </select>
+
+        <input type="file" id="imagenProducto" accept="image/*">
+
+        <label class="check-variante">
+          <input type="checkbox" id="tieneVariantes">
+          Este producto tiene variantes
+        </label>
+
+        <div id="bloqueVariantes" class="bloque-variantes oculto">
+
+          <h3>Tamaños</h3>
+          <p>Ejemplo: Chica 120, Mediana 180, Grande 240</p>
+          <div id="listaTamanosAdmin"></div>
+          <button type="button" onclick="agregarFilaVariante('tamano')">+ Agregar tamaño</button>
+
+          <h3>Tipo de masa / preparación</h3>
+          <p>Ejemplo: Normal 0, Orilla de queso 35</p>
+          <div id="listaMasasAdmin"></div>
+          <button type="button" onclick="agregarFilaVariante('masa')">+ Agregar masa</button>
+
+          <h3>Ingredientes extra</h3>
+          <p>Ejemplo: Queso extra 10, Tocino 15</p>
+          <div id="listaExtrasAdmin"></div>
+          <button type="button" onclick="agregarFilaVariante('extra')">+ Agregar extra</button>
+
+        </div>
+
+        <button type="submit">Guardar producto</button>
+      </form>
+
+      <div id="listaProductos" class="admin-list"></div>
+    </section>
+
+    <section class="admin-section panel-section" id="section-categorias">
+      <h2>Categorías</h2>
+
+      <form id="formCategoria" class="admin-form">
+        <input type="text" id="nombreCategoria" placeholder="Ejemplo: Pizzas, Bebidas, Postres">
+        <button type="submit">Guardar categoría</button>
+      </form>
+
+      <div id="listaCategorias" class="admin-list"></div>
+    </section>
+
+    <section class="admin-section panel-section" id="section-mesas">
+      <h2>Mesas y QR</h2>
+
+      <form id="formMesa" class="admin-form">
+        <input type="text" id="nombreMesa" placeholder="Ejemplo: Mesa 1">
+        <button type="submit">Crear mesa</button>
+      </form>
+
+      <div id="listaMesas" class="admin-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<script src="supabase.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
