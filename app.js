@@ -178,7 +178,6 @@ async function enviarPedidoPanel() {
   }
 
   const nombre = document.getElementById("nombreCliente").value.trim();
-  const direccion = document.getElementById("direccionCliente").value.trim();
 
   const total = carrito.reduce((sum, item) => sum + item.subtotal, 0);
 
