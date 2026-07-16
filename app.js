@@ -27,13 +27,17 @@ const totalProducto = document.getElementById("totalProducto");
 const notasProducto = document.getElementById("notasProducto");
 
 function filtrarCategoria(categoria, boton) {
+  document
+    .querySelectorAll(".categorias button")
+    .forEach(btn => {
+      btn.classList.remove("activo");
+    });
+
+  if (boton) {
+    boton.classList.add("activo");
+  }
+
   cargarProductosDesdeSupabase(categoria);
-
-  document.querySelectorAll(".categorias button").forEach(btn => {
-    btn.classList.remove("activo");
-  });
-
-  boton.classList.add("activo");
 }
 
 function cerrarModal() {
@@ -225,12 +229,14 @@ const direccion = direccionInput ? direccionInput.value.trim() : "";
     return;
   }
 
+enviarPedidoWhatsApp(nombre, direccion, total);
+
 carrito = [];
 actualizarCarrito();
 cerrarCarrito();
 
 setTimeout(() => {
-  mostrarPopupExito(`Tu pedido fue enviado correctamente desde ${mesaActual.nombre}.`);
+  mostrarPopupExito(`Tu pedido fue enviado correctamente desde ${mesaActual.nombre}. También se abrió WhatsApp para confirmar.`);
 }, 200);
 }
 
@@ -239,59 +245,247 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarCategoriasMenu();
   cargarProductosDesdeSupabase();
 });
+
 async function cargarProductosDesdeSupabase(categoria = "todos") {
-  productosGrid.innerHTML = "";
+  productosGrid.innerHTML = `
+    <div class="cargando-productos">
+      Cargando menú...
+    </div>
+  `;
 
   const { data, error } = await supabaseClient
     .from("productos")
     .select(`
       *,
-      categorias(nombre)
+      categorias(
+        id,
+        nombre
+      )
     `)
     .eq("restaurante_id", RESTAURANTE_ID)
     .eq("activo", true)
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
-    productosGrid.innerHTML = "<p>Error al cargar productos.</p>";
-    return;
-  }
+    console.error("Error al cargar productos:", error);
 
-  let productosFiltrados = data;
+    productosGrid.classList.remove("productos-agrupados");
 
-  if (categoria !== "todos") {
-    productosFiltrados = data.filter(producto => {
-      const nombreCategoria = producto.categorias?.nombre?.toLowerCase() || "";
-      return nombreCategoria.includes(categoria);
-    });
-  }
-
-  productosFiltrados.forEach(producto => {
-    const categoriaNombre = producto.categorias?.nombre || "Menú";
-
-    const card = document.createElement("div");
-    card.className = "producto-card";
-
-    card.innerHTML = `
-      <img src="${producto.imagen_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=900'}" alt="${producto.nombre}">
-
-      <div class="producto-info">
-        <small>🔥 ${categoriaNombre}</small>
-        <h3>${producto.nombre}</h3>
-        <p>${producto.descripcion || ""}</p>
-
-        <div class="producto-bottom">
-          <strong>$${producto.precio_base}</strong>
-          <button onclick="abrirProductoSupabase('${producto.id}')">
-            Agregar
-          </button>
-        </div>
+    productosGrid.innerHTML = `
+      <div class="sin-productos">
+        <h3>No pudimos cargar el menú</h3>
+        <p>Actualiza la página e inténtalo nuevamente.</p>
       </div>
     `;
 
-    productosGrid.appendChild(card);
+    return;
+  }
+
+  const productos = data || [];
+
+  if (productos.length === 0) {
+    productosGrid.classList.remove("productos-agrupados");
+
+    productosGrid.innerHTML = `
+      <div class="sin-productos">
+        <h3>No hay productos disponibles</h3>
+        <p>Pronto agregaremos nuevas opciones al menú.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  /*
+   * Cuando se selecciona "Todo",
+   * agrupamos automáticamente los productos por categoría.
+   */
+  if (categoria === "todos") {
+    renderizarProductosAgrupados(productos);
+    return;
+  }
+
+  /*
+   * Cuando se selecciona una categoría específica,
+   * conservamos el funcionamiento actual.
+   */
+  productosGrid.classList.remove("productos-agrupados");
+
+  const productosFiltrados = productos.filter(producto => {
+    const nombreCategoria = normalizarTexto(
+      producto.categorias?.nombre || ""
+    );
+
+    const categoriaSeleccionada = normalizarTexto(categoria);
+
+    return nombreCategoria === categoriaSeleccionada;
   });
+
+  productosGrid.innerHTML = "";
+
+  if (productosFiltrados.length === 0) {
+    productosGrid.innerHTML = `
+      <div class="sin-productos">
+        <h3>No hay productos en esta categoría</h3>
+        <p>Selecciona otra categoría para continuar.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  productosFiltrados.forEach(producto => {
+    productosGrid.appendChild(crearTarjetaProducto(producto));
+  });
+}
+
+function renderizarProductosAgrupados(productos) {
+  productosGrid.innerHTML = "";
+  productosGrid.classList.add("productos-agrupados");
+
+  const grupos = new Map();
+
+  productos.forEach(producto => {
+    const categoriaId =
+      producto.categorias?.id ||
+      producto.categoria_id ||
+      "sin-categoria";
+
+    const categoriaNombre =
+      producto.categorias?.nombre ||
+      "Otros productos";
+
+    if (!grupos.has(categoriaId)) {
+      grupos.set(categoriaId, {
+        nombre: categoriaNombre,
+        productos: []
+      });
+    }
+
+    grupos.get(categoriaId).productos.push(producto);
+  });
+
+  const gruposOrdenados = Array.from(grupos.values()).sort((a, b) => {
+    const nombreA = normalizarTexto(a.nombre);
+    const nombreB = normalizarTexto(b.nombre);
+
+    const esBebidaA =
+      nombreA.includes("bebida") ||
+      nombreA.includes("refresco") ||
+      nombreA.includes("agua") ||
+      nombreA.includes("jugo") ||
+      nombreA.includes("cafe");
+
+    const esBebidaB =
+      nombreB.includes("bebida") ||
+      nombreB.includes("refresco") ||
+      nombreB.includes("agua") ||
+      nombreB.includes("jugo") ||
+      nombreB.includes("cafe");
+
+    if (esBebidaA && !esBebidaB) {
+      return 1;
+    }
+
+    if (!esBebidaA && esBebidaB) {
+      return -1;
+    }
+
+    return 0;
+  });
+
+  gruposOrdenados.forEach(grupo => {
+    const seccion = document.createElement("section");
+    seccion.className = "grupo-categoria";
+
+    const textoCantidad =
+      grupo.productos.length === 1
+        ? "1 producto"
+        : `${grupo.productos.length} productos`;
+
+    seccion.innerHTML = `
+      <div class="grupo-categoria-header">
+        <div class="grupo-categoria-titulo">
+          <span>Explora nuestro menú</span>
+          <h3>${grupo.nombre}</h3>
+        </div>
+
+        <div class="grupo-categoria-cantidad">
+          ${textoCantidad}
+        </div>
+      </div>
+
+      <div class="grupo-productos-grid"></div>
+    `;
+
+    const gridCategoria = seccion.querySelector(
+      ".grupo-productos-grid"
+    );
+
+    grupo.productos.forEach(producto => {
+      gridCategoria.appendChild(
+        crearTarjetaProducto(producto)
+      );
+    });
+
+    productosGrid.appendChild(seccion);
+  });
+}
+
+function crearTarjetaProducto(producto) {
+  const categoriaNombre =
+    producto.categorias?.nombre || "Menú";
+
+  const imagenProducto =
+    producto.imagen_url ||
+    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=900";
+
+  const descripcionProducto =
+    producto.descripcion || "";
+
+  const precioProducto =
+    Number(producto.precio_base) || 0;
+
+  const card = document.createElement("article");
+  card.className = "producto-card";
+
+  card.innerHTML = `
+    <img
+      src="${imagenProducto}"
+      alt="${producto.nombre}"
+      loading="lazy"
+      onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=900'"
+    >
+
+    <div class="producto-info">
+      <small>🔥 ${categoriaNombre}</small>
+
+      <h3>${producto.nombre}</h3>
+
+      <p>${descripcionProducto}</p>
+
+      <div class="producto-bottom">
+        <strong>$${precioProducto}</strong>
+
+        <button
+          type="button"
+          onclick="abrirProductoSupabase('${producto.id}')"
+        >
+          Agregar
+        </button>
+      </div>
+    </div>
+  `;
+
+  return card;
+}
+
+function normalizarTexto(texto) {
+  return String(texto)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 async function abrirProductoSupabase(id) {
@@ -446,4 +640,48 @@ function mostrarPopupExito(mensaje) {
 
 function cerrarPopupExito() {
   document.getElementById("popupExito").classList.add("oculto");
+}
+
+function enviarPedidoWhatsApp(nombre, direccion, total) {
+  let mensaje = `Hola, quiero hacer un pedido:%0A%0A`;
+
+  mensaje += `Mesa: ${mesaActual ? mesaActual.nombre : "Sin mesa"}%0A`;
+
+  if (nombre) {
+    mensaje += `Cliente: ${nombre}%0A`;
+  }
+
+  if (direccion) {
+    mensaje += `Notas: ${direccion}%0A`;
+  }
+
+  mensaje += `%0A--- Pedido ---%0A`;
+
+  carrito.forEach((item, index) => {
+    mensaje += `%0A${index + 1}. ${item.cantidad}x ${item.nombre}%0A`;
+
+    if (item.opciones && item.opciones.length > 0) {
+      item.opciones.forEach(opcion => {
+        mensaje += `${opcion.grupo}: ${opcion.nombre}`;
+
+        if (opcion.precio > 0) {
+          mensaje += ` +$${opcion.precio}`;
+        }
+
+        mensaje += `%0A`;
+      });
+    }
+
+    if (item.notas) {
+      mensaje += `Notas: ${item.notas}%0A`;
+    }
+
+    mensaje += `Subtotal: $${item.subtotal}%0A`;
+  });
+
+  mensaje += `%0ATotal: $${total}`;
+
+  const url = `https://wa.me/${numeroWhatsApp}?text=${mensaje}`;
+
+  window.open(url, "_blank");
 }
